@@ -4,10 +4,13 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 
 import javax.annotation.processing.Generated;
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "users")
@@ -37,8 +40,12 @@ public class User {
     private String fullName;
 
     @Size(min = 1, max = 50, message = "Bio must be between 1 and 50 characters")
-    @Column(unique = false,  nullable = false)
+    @Column(unique = false,  nullable = true)
     private String bio;
+
+    // OneToMany with Post
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post> posts = new ArrayList<>();
 
     // Constructor
     public User() {}
@@ -52,6 +59,7 @@ public class User {
         this.lastName = lastName;
         this.fullName = fullName;
         this.bio = bio;
+        this.posts = new ArrayList<>();
     }
 
     // Getters and Setters
@@ -117,6 +125,26 @@ public class User {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    // Getters and Setters for Posts
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
+
+    // Utility Methods
+    public void addPosts(Post post) {
+        posts.add(post);
+        post.setUser(this);
+    }
+
+    public void removePosts(Post post) {
+        posts.remove(post);
+        post.setUser(null);
     }
 
 }
